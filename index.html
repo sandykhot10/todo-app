@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple To-Do List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        .container {
+            width: 300px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        input {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            padding: 10px;
+            background: #f9f9f9;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+        button {
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>To-Do List</h2>
+        <input type="text" id="taskInput" placeholder="Add a new task...">
+        <ul id="taskList"></ul>
+    </div>
+    <script>
+        const taskInput = document.getElementById("taskInput");
+        const taskList = document.getElementById("taskList");
+
+        taskInput.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                addTask();
+            }
+        });
+
+        function addTask() {
+            const taskText = taskInput.value.trim();
+            if (taskText !== "") {
+                const li = document.createElement("li");
+                li.textContent = taskText;
+                const button = document.createElement("button");
+                button.textContent = "x";
+                button.onclick = function() {
+                    taskList.removeChild(li);
+                };
+                li.appendChild(button);
+                taskList.appendChild(li);
+                taskInput.value = "";
+            }
+        }
+    </script>
+</body>
+</html>
