@@ -31,31 +31,65 @@
         const todoList = document.getElementById('todo-list');
         const newTodoInput = document.getElementById('new-todo');
 
+        // Load saved todos from localStorage when the page loads
+        window.onload = () => {
+            const savedTodos = JSON.parse(localStorage.getItem('todos')) || [];
+            savedTodos.forEach(todo => renderTodoItem(todo.text, todo.completed));
+        };
+
         function addTodo() {
             const todoText = newTodoInput.value.trim();
             if (todoText === '') return;
             
+            renderTodoItem(todoText, false);
+            saveTodoToLocalStorage(todoText, false);
+            newTodoInput.value = '';  // Clear the input field
+        }
+
+        function renderTodoItem(text, isCompleted) {
             const listItem = document.createElement('li');
             listItem.className = 'todo-item';
+            if (isCompleted) listItem.classList.add('completed');
+            
             listItem.innerHTML = `
-                <span>${todoText}</span>
+                <span>${text}</span>
                 <div class="todo-actions">
                     <button onclick="completeTodo(this)">✔</button>
                     <button onclick="deleteTodo(this)">✖</button>
                 </div>
             `;
             todoList.appendChild(listItem);
-            newTodoInput.value = '';
         }
 
         function completeTodo(button) {
             const listItem = button.parentElement.parentElement;
             listItem.classList.toggle('completed');
+            updateLocalStorage();
         }
 
         function deleteTodo(button) {
             const listItem = button.parentElement.parentElement;
             listItem.remove();
+            updateLocalStorage();
+        }
+
+        // Save the new todo to localStorage
+        function saveTodoToLocalStorage(text, isCompleted) {
+            const savedTodos = JSON.parse(localStorage.getItem('todos')) || [];
+            savedTodos.push({ text, completed: isCompleted });
+            localStorage.setItem('todos', JSON.stringify(savedTodos));
+        }
+
+        // Update localStorage whenever a todo is completed or deleted
+        function updateLocalStorage() {
+            const todos = [];
+            const todoItems = document.querySelectorAll('.todo-item');
+            todoItems.forEach(item => {
+                const text = item.querySelector('span').textContent;
+                const completed = item.classList.contains('completed');
+                todos.push({ text, completed });
+            });
+            localStorage.setItem('todos', JSON.stringify(todos));
         }
     </script>
 
