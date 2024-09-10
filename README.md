@@ -6,7 +6,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>To-Do App</h1>
+        <h1>ToDo - App</h1>
         <p>Welcome to the To-Do App! This simple and elegant application helps you manage your daily tasks effortlessly.</p>      
         <h2>Features</h2>
         <ul>
