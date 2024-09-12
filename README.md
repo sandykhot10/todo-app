@@ -42,7 +42,7 @@
         <h2>Contributing</h2>
         <p>If you'd like to contribute to the project, feel free to create a pull request or open an issue on the <a href="https://github.com/sandykhot10/todo-app">GitHub repository</a>.</p>
         <div class="footer">
-            <p>Built with ♥ by <a href="https://sandeshprofile.netlify.app/">Your Name</a></p>
+            <p>Built with ♥ by <a href="https://sandeshprofile.netlify.app/">Sandy Khot</a></p>
         </div>
     </div>
 </body>
