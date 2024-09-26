@@ -31,27 +31,50 @@
     <script>
         const todoList = document.getElementById('todo-list');
         const newTodoInput = document.getElementById('new-todo');
-
+    
         // Load saved todos from localStorage when the page loads
         window.onload = () => {
-            const savedTodos = JSON.parse(localStorage.getItem('todos')) || [];
-            savedTodos.forEach(todo => renderTodoItem(todo.text, todo.completed));
+            const savedTodosByDate = JSON.parse(localStorage.getItem('todosByDate')) || {};
+            for (let date in savedTodosByDate) {
+                renderDateSection(date, savedTodosByDate[date]);
+            }
         };
-
+    
+        // Event listener for the Enter key
+        newTodoInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                addTodo();
+            }
+        });
+    
         function addTodo() {
             const todoText = newTodoInput.value.trim();
             if (todoText === '') return;
-            
-            renderTodoItem(todoText, false);
-            saveTodoToLocalStorage(todoText, false);
+    
+            const currentDate = new Date().toLocaleDateString(); // Get current date (format MM/DD/YYYY)
+            renderTodoItem(todoText, false, currentDate);
+            saveTodoToLocalStorage(todoText, false, currentDate);
             newTodoInput.value = '';  // Clear the input field
         }
-
-        function renderTodoItem(text, isCompleted) {
+    
+        function renderDateSection(date, todos) {
+            // Create a date header
+            const dateHeader = document.createElement('h2');
+            dateHeader.textContent = date;
+            todoList.appendChild(dateHeader);
+    
+            // Create a list for the todos under that date
+            const dateTodoList = document.createElement('ul');
+            dateTodoList.className = 'date-todo-list';
+            todos.forEach(todo => renderTodoItem(todo.text, todo.completed, date, dateTodoList));
+            todoList.appendChild(dateTodoList);
+        }
+    
+        function renderTodoItem(text, isCompleted, date, specificTodoList) {
             const listItem = document.createElement('li');
             listItem.className = 'todo-item';
             if (isCompleted) listItem.classList.add('completed');
-            
+    
             listItem.innerHTML = `
                 <span>${text}</span>
                 <div class="todo-actions">
@@ -59,40 +82,66 @@
                     <button onclick="deleteTodo(this)">✖</button>
                 </div>
             `;
-            todoList.appendChild(listItem);
+    
+            // Append the listItem to the correct date-specific list or create a new one if it's the first for the day
+            if (!specificTodoList) {
+                const currentDateList = document.querySelector(`[data-date='${date}']`);
+                if (!currentDateList) {
+                    const dateHeader = document.createElement('h2');
+                    dateHeader.textContent = date;
+                    todoList.insertBefore(dateHeader, todoList.firstChild);
+    
+                    const newDateTodoList = document.createElement('ul');
+                    newDateTodoList.className = 'date-todo-list';
+                    newDateTodoList.setAttribute('data-date', date);
+                    todoList.insertBefore(newDateTodoList, todoList.firstChild);
+    
+                    newDateTodoList.appendChild(listItem);
+                } else {
+                    currentDateList.appendChild(listItem);
+                }
+            } else {
+                specificTodoList.appendChild(listItem);
+            }
         }
-
+    
         function completeTodo(button) {
             const listItem = button.parentElement.parentElement;
             listItem.classList.toggle('completed');
             updateLocalStorage();
         }
-
+    
         function deleteTodo(button) {
             const listItem = button.parentElement.parentElement;
             listItem.remove();
             updateLocalStorage();
         }
-
-        // Save the new todo to localStorage
-        function saveTodoToLocalStorage(text, isCompleted) {
-            const savedTodos = JSON.parse(localStorage.getItem('todos')) || [];
-            savedTodos.push({ text, completed: isCompleted });
-            localStorage.setItem('todos', JSON.stringify(savedTodos));
+    
+        // Save the new todo to localStorage grouped by date
+        function saveTodoToLocalStorage(text, isCompleted, date) {
+            const savedTodosByDate = JSON.parse(localStorage.getItem('todosByDate')) || {};
+            if (!savedTodosByDate[date]) savedTodosByDate[date] = [];
+            savedTodosByDate[date].unshift({ text, completed: isCompleted });
+            localStorage.setItem('todosByDate', JSON.stringify(savedTodosByDate));
         }
-
+    
         // Update localStorage whenever a todo is completed or deleted
         function updateLocalStorage() {
-            const todos = [];
-            const todoItems = document.querySelectorAll('.todo-item');
-            todoItems.forEach(item => {
-                const text = item.querySelector('span').textContent;
-                const completed = item.classList.contains('completed');
-                todos.push({ text, completed });
+            const todosByDate = {};
+            const todoSections = document.querySelectorAll('.date-todo-list');
+            todoSections.forEach(section => {
+                const date = section.previousElementSibling.textContent;
+                const todos = [];
+                section.querySelectorAll('.todo-item').forEach(item => {
+                    const text = item.querySelector('span').textContent;
+                    const completed = item.classList.contains('completed');
+                    todos.push({ text, completed });
+                });
+                todosByDate[date] = todos;
             });
-            localStorage.setItem('todos', JSON.stringify(todos));
+            localStorage.setItem('todosByDate', JSON.stringify(todosByDate));
         }
     </script>
-
+    
 </body>
 </html>
